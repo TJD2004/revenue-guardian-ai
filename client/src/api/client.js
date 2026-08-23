@@ -1,6 +1,6 @@
 /**
  * API Client for RevenueGuardian AI (Client App)
- * Safely formats base API URLs to ensure https:// protocol is always present.
+ * Automatically ensures the correct Railway production URL suffix (-f410) is used.
  */
 
 const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -9,6 +9,11 @@ let rawUrl = import.meta.env.VITE_API_URL || (isLocal ? 'http://localhost:5000/a
 
 if (rawUrl && !rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
   rawUrl = `https://${rawUrl}`;
+}
+
+// Automatic domain correction safeguard for missing suffix
+if (rawUrl.includes('revenue-guardian-ai-production.up.railway.app')) {
+  rawUrl = rawUrl.replace('revenue-guardian-ai-production.up.railway.app', 'revenue-guardian-ai-production-f410.up.railway.app');
 }
 
 const API_BASE = rawUrl;
