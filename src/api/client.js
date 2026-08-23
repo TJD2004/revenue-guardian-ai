@@ -1,12 +1,14 @@
 /**
  * API Client for RevenueGuardian AI
+ * Supports split deployment (Vercel Frontend + Railway Backend) via VITE_API_URL
  */
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_URL || (window.location.port === '5000' ? '/api' : 'http://localhost:5000/api');
 
 async function fetchJson(url, options = {}) {
   try {
-    const res = await fetch(`${API_BASE}${url}`, {
+    const baseUrl = API_BASE.replace(/\/$/, '');
+    const res = await fetch(`${baseUrl}${url}`, {
       headers: { 'Content-Type': 'application/json' },
       ...options
     });
