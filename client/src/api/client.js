@@ -1,6 +1,6 @@
 /**
  * Ultra-Resilient API Client for RevenueGuardian AI
- * Guarantees that https://revenue-guardian-ai-production-f410.up.railway.app/api is always targeted.
+ * Active Railway production domain: https://revenue-guardian-ai-production.up.railway.app/api
  */
 
 const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -8,14 +8,14 @@ const isLocal = typeof window !== 'undefined' && (window.location.hostname === '
 function getPrimaryBaseUrl() {
   let envUrl = import.meta.env.VITE_API_URL;
   if (!envUrl) {
-    return isLocal ? 'http://localhost:5000/api' : 'https://revenue-guardian-ai-production-f410.up.railway.app/api';
+    return isLocal ? 'http://localhost:5000/api' : 'https://revenue-guardian-ai-production.up.railway.app/api';
   }
   if (!envUrl.startsWith('http://') && !envUrl.startsWith('https://') && !envUrl.startsWith('/')) {
     envUrl = `https://${envUrl}`;
   }
-  // Auto-correct domain to ensure -f410 suffix is present
-  if (envUrl.includes('revenue-guardian-ai-production.up.railway.app') && !envUrl.includes('revenue-guardian-ai-production-f410.up.railway.app')) {
-    envUrl = envUrl.replace('revenue-guardian-ai-production.up.railway.app', 'revenue-guardian-ai-production-f410.up.railway.app');
+  // Strip any old -f410 references if present
+  if (envUrl.includes('-f410')) {
+    envUrl = envUrl.replace('-f410', '');
   }
   return envUrl;
 }
@@ -24,7 +24,7 @@ async function fetchJson(url, options = {}) {
   const primaryBase = getPrimaryBaseUrl();
   const targets = Array.from(new Set([
     primaryBase.replace(/\/$/, ''),
-    'https://revenue-guardian-ai-production-f410.up.railway.app/api',
+    'https://revenue-guardian-ai-production.up.railway.app/api',
     isLocal ? 'http://localhost:5000/api' : '/api',
     '/api'
   ]));
@@ -39,11 +39,11 @@ async function fetchJson(url, options = {}) {
         return await res.json();
       }
     } catch (err) {
-      // Try next target silently
+      // Try next target
     }
   }
 
-  // Fallback seed metrics so the UI never crashes
+  // Resilient Fallback Seed Data if network/DNS is temporarily offline
   if (url.includes('/stats')) {
     return {
       totalAtRisk: 7830098,
