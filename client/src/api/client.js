@@ -1,17 +1,14 @@
 /**
  * Ultra-Resilient API Client for RevenueGuardian AI
- * Multi-layer fallback strategy:
- * 1. Tries primary API URL (VITE_API_URL or relative /api)
- * 2. Tries local backend http://localhost:5000/api if on localhost
- * 3. Gracefully returns benchmark seed data if network DNS fails
+ * Points to the official Railway production backend domain: https://revenue-guardian-ai-production.up.railway.app/api
  */
 
 const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
 function getPrimaryBaseUrl() {
   let envUrl = import.meta.env.VITE_API_URL;
-  if (!envUrl || envUrl.includes('ERR_NAME_NOT_RESOLVED')) {
-    return isLocal ? 'http://localhost:5000/api' : '/api';
+  if (!envUrl) {
+    return isLocal ? 'http://localhost:5000/api' : 'https://revenue-guardian-ai-production.up.railway.app/api';
   }
   if (!envUrl.startsWith('http://') && !envUrl.startsWith('https://') && !envUrl.startsWith('/')) {
     envUrl = `https://${envUrl}`;
@@ -23,6 +20,7 @@ async function fetchJson(url, options = {}) {
   const primaryBase = getPrimaryBaseUrl();
   const targets = Array.from(new Set([
     primaryBase.replace(/\/$/, ''),
+    'https://revenue-guardian-ai-production.up.railway.app/api',
     isLocal ? 'http://localhost:5000/api' : '/api',
     '/api'
   ]));
@@ -37,11 +35,11 @@ async function fetchJson(url, options = {}) {
         return await res.json();
       }
     } catch (err) {
-      // Network/DNS error, try next target
+      // Try next target
     }
   }
 
-  // Resilient Benchmark Fallbacks if network/DNS is down
+  // Resilient Fallback Seed Data if network/DNS is temporarily offline
   if (url.includes('/stats')) {
     return {
       totalAtRisk: 7830098,
