@@ -1,12 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Cpu, Code, CheckCircle2, Copy, Sparkles, Layers, Terminal } from 'lucide-react';
-import { AGENT_TOOLS_DEFINITIONS } from '../../server/agent/toolRegistry.js';
+import { api } from '../api/client';
+
+const FALLBACK_TOOLS = [
+  { name: 'generate_payment_link', description: 'Generates Razorpay payment link with optional policy-capped discount.', parameters: { eventId: 'string', discountPercent: 'number' } },
+  { name: 'schedule_payment_retry', description: 'Schedules auto-debit retries capped at RBI 2026 2-retry limit.', parameters: { eventId: 'string', delayDays: 'number' } },
+  { name: 'generate_email', description: 'Generates personalized email reminder.', parameters: { customerId: 'string', template: 'string' } },
+  { name: 'generate_sms', description: 'Generates SMS reminder.', parameters: { phone: 'string', text: 'string' } },
+  { name: 'generate_hinglish_message', description: 'Generates Hinglish WhatsApp/SMS reminder.', parameters: { customerName: 'string', amount: 'number' } },
+  { name: 'create_followup', description: 'Records Promise-To-Pay (P2P) date.', parameters: { promiseDate: 'string' } },
+  { name: 'mark_payment_recovered', description: 'Marks event as recovered and closes case.', parameters: { recoveredAmount: 'number' } },
+  { name: 'escalate_case', description: 'Escalates case to finance team.', parameters: { reason: 'string' } },
+  { name: 'close_case', description: 'Closes case when recovery attempts are exhausted.', parameters: { reason: 'string' } }
+];
 
 export function McpPage() {
+  const [tools, setTools] = useState(FALLBACK_TOOLS);
   const [selectedTool, setSelectedTool] = useState('generate_payment_link');
   const [copied, setCopied] = useState(false);
 
-  const activeToolDef = AGENT_TOOLS_DEFINITIONS.find(t => t.name === selectedTool) || AGENT_TOOLS_DEFINITIONS[0];
+  useEffect(() => {
+    async function loadTools() {
+      try {
+        const res = await api.getMcpTools();
+        if (res && res.tools && res.tools.length > 0) {
+          setTools(res.tools);
+        }
+      } catch (err) {
+        console.warn('Using fallback MCP tools:', err);
+      }
+    }
+    loadTools();
+  }, []);
+
+  const activeToolDef = tools.find(t => t.name === selectedTool) || tools[0];
 
   const mcpDeclaration = {
     mcpVersion: "1.0",
@@ -44,9 +71,9 @@ export function McpPage() {
         
         {/* Left Tool List */}
         <div className="fintech-card p-4 space-y-2">
-          <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider px-2 mb-2">Registered MCP Tools (14)</p>
+          <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider px-2 mb-2">Registered MCP Tools ({tools.length})</p>
           <div className="space-y-1 max-h-[500px] overflow-y-auto pr-1">
-            {AGENT_TOOLS_DEFINITIONS.map((tool) => (
+            {tools.map((tool) => (
               <button
                 key={tool.name}
                 onClick={() => setSelectedTool(tool.name)}
