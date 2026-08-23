@@ -1,9 +1,12 @@
 /**
  * API Client for RevenueGuardian AI (Client App)
- * Connects to Railway Backend API URL via VITE_API_URL
+ * Defaults to local backend http://localhost:5000/api when running on localhost,
+ * or reads VITE_API_URL environment variable when deployed to production (Vercel).
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://revenue-guardian-ai-production-f410.up.railway.app/api';
+const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+const API_BASE = import.meta.env.VITE_API_URL || (isLocal ? 'http://localhost:5000/api' : 'https://revenue-guardian-ai-production-f410.up.railway.app/api');
 
 async function fetchJson(url, options = {}) {
   try {
