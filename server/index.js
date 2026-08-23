@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
 
 import { agentController } from './agent/agentController.js';
 import { auditLogger } from './agent/auditLogger.js';
@@ -31,6 +30,21 @@ app.use('/api', (req, res, next) => {
 
 // Initialize Seed Data
 seedService.seedInitialData();
+
+// Root Health Check Route
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    service: 'RevenueGuardian AI — Backend Agent API',
+    endpoints: {
+      stats: '/api/stats',
+      events: '/api/events',
+      customers: '/api/customers',
+      audit: '/api/audit',
+      mcpTools: '/api/mcp/tools'
+    }
+  });
+});
 
 // API ROUTES
 
@@ -165,25 +179,6 @@ app.post('/api/simulations/reset', (req, res) => {
   res.json({ success: true, message: 'Dataset reset to 500 initial benchmark cases' });
 });
 
-// Serve Vite SPA in development or static dist in production
-async function startServer() {
-  if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
-    app.use(express.static(path.join(__dirname, '../dist')));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname, '../dist/index.html'));
-    });
-  } else {
-    const vite = await createViteServer({
-      root: path.resolve(__dirname, '..'),
-      server: { middlewareMode: true },
-      appType: 'spa'
-    });
-    app.use(vite.middlewares);
-  }
-
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 RevenueGuardian AI Server running on port ${PORT}`);
-  });
-}
-
-startServer();
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 RevenueGuardian AI Backend Server running on port ${PORT}`);
+});
