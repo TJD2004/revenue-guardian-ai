@@ -18,13 +18,27 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// Enable Explicit Cross-Origin Access (CORS) & Preflight Handling for Vercel Frontend
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+app.options('*', cors());
 app.use(express.json());
 app.set('etag', false);
 
 // Disable caching for dynamic API responses
 app.use('/api', (req, res, next) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
   next();
 });
 
@@ -68,7 +82,7 @@ app.get('/api/events/:id', (req, res) => {
   const customerHistory = seedService.getCustomerHistory(event.customerId);
   res.json({
     event,
-    customerHistory,
+ customerHistory,
     traces: agentController.getTracesForEvent(event.id)
   });
 });
