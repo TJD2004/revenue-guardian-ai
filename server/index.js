@@ -165,24 +165,24 @@ app.post('/api/simulations/reset', (req, res) => {
   res.json({ success: true, message: 'Dataset reset to 500 initial benchmark cases' });
 });
 
-// Serve Vite SPA in development
+// Serve Vite SPA in development or static dist in production
 async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
+    app.use(express.static(path.join(__dirname, '../dist')));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, '../dist/index.html'));
+    });
+  } else {
     const vite = await createViteServer({
       root: path.resolve(__dirname, '..'),
       server: { middlewareMode: true },
       appType: 'spa'
     });
     app.use(vite.middlewares);
-  } else {
-    app.use(express.static(path.join(__dirname, '../dist')));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname, '../dist/index.html'));
-    });
   }
 
-  app.listen(PORT, () => {
-    console.log(`🚀 RevenueGuardian AI Server running on http://localhost:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 RevenueGuardian AI Server running on port ${PORT}`);
   });
 }
 
