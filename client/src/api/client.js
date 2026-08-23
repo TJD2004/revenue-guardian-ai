@@ -1,6 +1,7 @@
 /**
  * Ultra-Resilient API Client for RevenueGuardian AI
  * Active Railway production domain: https://revenue-guardian-ai-production-830b.up.railway.app/api
+ * Optimized for browser CORS simplicity (omits preflight headers on simple GET requests).
  */
 
 const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -29,12 +30,18 @@ async function fetchJson(url, options = {}) {
     '/api'
   ]));
 
+  const fetchOptions = { ...options };
+  // Only attach Content-Type header when a body is being transmitted
+  if (fetchOptions.body) {
+    fetchOptions.headers = {
+      'Content-Type': 'application/json',
+      ...(fetchOptions.headers || {})
+    };
+  }
+
   for (const targetBase of targets) {
     try {
-      const res = await fetch(`${targetBase}${url}`, {
-        headers: { 'Content-Type': 'application/json' },
-        ...options
-      });
+      const res = await fetch(`${targetBase}${url}`, fetchOptions);
       if (res.ok) {
         return await res.json();
       }
