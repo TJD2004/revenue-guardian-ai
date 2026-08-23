@@ -16,7 +16,7 @@ export const RECOVERY_POLICY = {
   rbiMandateCompliance2026: true
 };
 
-export function checkPolicyGuardrails(actionName, event, customer) {
+export function checkPolicyGuardrails(actionName, event, customer = {}) {
   // 1. Closed or Recovered Case Safeguard
   if (event.status === 'Recovered' || event.isClosed) {
     return {
@@ -73,4 +73,22 @@ export function checkPolicyGuardrails(actionName, event, customer) {
     allowed: true,
     reason: 'RBI 2026 E-Mandate Policy Verification Passed.'
   };
+}
+
+export function validatePolicy(toolName, event, args = {}) {
+  const check = checkPolicyGuardrails(toolName, event, { name: event?.customerName });
+  return {
+    allowed: check.allowed,
+    reason: check.reason
+  };
+}
+
+export function checkStoppingRules(event) {
+  if (event.status === 'Recovered') {
+    return { shouldClose: true, finalStatus: 'Recovered', reason: 'Customer paid. Recovery target achieved.' };
+  }
+  if ((event.retryCount || 0) >= RECOVERY_POLICY.maxPaymentRetries && (event.reminderCount || 0) >= RECOVERY_POLICY.maxCustomerReminders) {
+    return { shouldClose: true, finalStatus: 'Closed (Recovery Exhausted)', reason: 'Maximum retries and reminder limits reached.' };
+  }
+  return { shouldClose: false };
 }
