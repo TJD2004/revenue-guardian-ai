@@ -2,7 +2,7 @@
 
 > **Razorpay Buildathon 2026 — Track 03: AI Revenue Recovery**  
 > *"Don't just detect lost revenue. Recover it."*  
-> **🏛️ RBI 2026 E-Mandate Compliant | 🛡️ Java 17 Spring Boot Security | 🔗 SHA-256 Blockchain Ledger**
+> **🏛️ RBI 2026 E-Mandate Compliant | 🛡️ Java 17 Spring Boot Security | 🔗 SHA-256 Blockchain Audit Ledger**
 
 ---
 
@@ -21,7 +21,7 @@ Traditional platforms present static dashboards that tell you money was lost. **
 - **Autonomous Closed-Loop Recovery**: Replaces manual support calls with an AI agent workflow ($\text{DETECT} \to \text{DIAGNOSE} \to \text{DECIDE} \to \text{ACT} \to \text{RECOVER} \to \text{VERIFY} \to \text{BLOCKCHAIN AUDIT}$).
 - **RBI 2026 Regulatory Safety**: Enforces 24-hour pre-debit SMS/Email notices, a hard 2-retry cap per billing cycle, and dual-factor OTP requirements for high-value transactions (> ₹50,000).
 - **Decoupled Enterprise Cryptography**: Offloads HMAC-SHA256 signature verification and ledger hashing to an isolated **Java 17 Spring Boot Microservice**.
-- **Cryptographic Auditability**: Mints every policy decision into a **SHA-256 Proof-of-Work Blockchain** to guarantee immutable record-keeping for financial regulators.
+- **Tamper-Proof Blockchain Audit Ledger**: Mints every recovery action, policy evaluation, and audit entry into a **SHA-256 Cryptographic Blockchain** to guarantee immutable, verifiable record-keeping for financial regulators and auditors.
 
 ---
 
@@ -55,10 +55,9 @@ Traditional platforms present static dashboards that tell you money was lost. **
 - **`HmacSHA256` Webhook Verification**: Cryptographically verifies incoming Razorpay webhooks (`x-razorpay-signature`) using Java `javax.crypto.Mac` to prevent spoofing.
 - **Deterministic Regulatory Policy Engine**: Evaluates RBI compliance rules with Java strict typing.
 
-### 2. Cryptographic SHA-256 Blockchain Ledger
-- **Immutable Blocks**: Every recovery action, AI plan, and webhook ingestion is minted into a SHA-256 block linked via `previousHash` pointers.
-- **Proof-of-Work Mining**: Real-time nonce calculation guaranteeing block mathematical validity.
-- **Chain Verification**: `GET /api/blockchain/verify` checks 100% of blocks from Genesis to latest height for tamper detection.
+### 2. Cryptographic SHA-256 Blockchain Audit Ledger
+- **Immutable Audit Blocks**: Every recovery action, policy evaluation, and audit trail entry is minted into a SHA-256 block linked via `previousHash` pointers.
+- **Audit Verification**: `GET /api/blockchain/verify` checks 100% of blocks from Genesis to latest height for tamper detection, ensuring 100% verifiable compliance logs for auditors.
 
 ### 3. RBI 2026 E-Mandate Compliance Framework
 - **24-Hour Pre-Debit Safeguard**: Enforces 24-hour advance SMS/Email notification prior to automated mandate retry execution.
@@ -86,9 +85,9 @@ Traditional platforms present static dashboards that tell you money was lost. **
 - **Obstacle**: Cross-origin requests between ports `3000`, `5000`, and `8080` triggered mandatory browser CORS `OPTIONS` preflight bottlenecks when custom headers like `Content-Type` were passed on simple `GET` calls.
 - **Solution**: Refactored the API client (`client.js`) to attach `Content-Type` strictly on payload-bearing requests (`POST`/`PUT`) and implemented explicit `OPTIONS` preflight handlers returning HTTP 200 OK across Express and Spring Boot controllers.
 
-### 3. Real-Time Cryptographic Blockchain Mining Without Event Loop Lag
-- **Obstacle**: Mining SHA-256 Proof-of-Work blocks inside synchronous Node.js event loops threatened to block API throughput.
-- **Solution**: Offloaded block hashing and Proof-of-Work nonce calculation to the **Java 17 Spring Boot Microservice**, leveraging multi-threaded JVM execution and asynchronous REST bridging in Express.
+### 3. Real-Time Cryptographic Blockchain Audit Hashing Without Event Loop Lag
+- **Obstacle**: Generating SHA-256 cryptographic audit block hashes and validating chain pointers inside synchronous Node.js event loops threatened to slow down core payment recovery throughput.
+- **Solution**: Offloaded block hashing, chain verification, and audit ledger linking to the **Java 17 Spring Boot Microservice**, leveraging multi-threaded JVM execution and asynchronous REST bridging in Express.
 
 ---
 
@@ -141,6 +140,6 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser!
 ## 🏆 Razorpay Buildathon Judging Criteria Matrix
 
 - **Feasibility & Execution**: Full-stack application with live Groq LLM integration, Java 17 Spring Boot microservice, and active Razorpay webhook receivers.
-- **Innovation & Technical Depth**: SHA-256 Proof-of-Work Blockchain ledger, Model Context Protocol (MCP) agent tools, and Voice AI studio.
+- **Innovation & Technical Depth**: SHA-256 Blockchain Audit Ledger, Model Context Protocol (MCP) agent tools, and Voice AI studio.
 - **Fintech & Regulatory Alignment**: Strict compliance with RBI 2026 E-Mandate pre-debit notifications and 2-retry limits.
-- **UI/UX Excellence**: High-end fintech dark/light UI with real-time confetti rewards, live activity tickers, and interactive blockchain explorers.
+- **UI/UX Excellence**: High-end fintech dark/light UI with real-time confetti rewards, live activity tickers, and interactive blockchain audit explorers.
