@@ -6,11 +6,22 @@
 
 ---
 
-## Executive Summary
+## 🎯 Project Objectives & What It Solves
 
-Revenue loss in modern fintech rarely happens in one clean step—payments degrade, checkouts are abandoned, recurring subscription mandates fail, or B2B invoices go overdue. Traditional platforms present static graphs. **RevenueGuardian AI** closes the loop by operating an autonomous AI agent workflow backed by a **Java 17 Spring Boot Security Microservice**, a **Cryptographic SHA-256 Blockchain Ledger**, and **RBI 2026 E-Mandate Compliance Rules**:
+### The Core Industry Problem
+Digital merchants, SaaS platforms, and Indian D2C brands lose over **$110 Billion annually** due to silent payment friction:
+1. **Checkout Abandonment**: High-intent shoppers drop out at payment authorization.
+2. **Recurring Subscription Mandate Failures**: Bank e-mandates fail silently due to card updates or insufficient funds.
+3. **Overdue B2B Invoices**: Manual dunning takes weeks, creating massive cash flow drag.
+4. **Regulatory Risk**: Aggressive payment retries risk violating RBI circulars on consumer protection and e-mandate caps.
 
-$$\text{DETECT} \longrightarrow \text{DIAGNOSE} \longrightarrow \text{DECIDE} \longrightarrow \text{ACT} \longrightarrow \text{RECOVER} \longrightarrow \text{VERIFY} \longrightarrow \text{BLOCKCHAIN AUDIT}$$
+### What RevenueGuardian AI Solves
+Traditional platforms present static dashboards that tell you money was lost. **RevenueGuardian AI** operates an autonomous AI workforce that recovers lost revenue while ensuring strict regulatory compliance:
+
+- **Autonomous Closed-Loop Recovery**: Replaces manual support calls with an AI agent workflow ($\text{DETECT} \to \text{DIAGNOSE} \to \text{DECIDE} \to \text{ACT} \to \text{RECOVER} \to \text{VERIFY} \to \text{BLOCKCHAIN AUDIT}$).
+- **RBI 2026 Regulatory Safety**: Enforces 24-hour pre-debit SMS/Email notices, a hard 2-retry cap per billing cycle, and dual-factor OTP requirements for high-value transactions (> ₹50,000).
+- **Decoupled Enterprise Cryptography**: Offloads HMAC-SHA256 signature verification and ledger hashing to an isolated **Java 17 Spring Boot Microservice**.
+- **Cryptographic Auditability**: Mints every policy decision into a **SHA-256 Proof-of-Work Blockchain** to guarantee immutable record-keeping for financial regulators.
 
 ---
 
@@ -62,6 +73,22 @@ $$\text{DETECT} \longrightarrow \text{DIAGNOSE} \longrightarrow \text{DECIDE} \l
   - 📞 *Voice Recovery Studio* (Interactive Multilingual AI Phone Outreach)
   - 📄 *Invoice Dunning Engine* (Finance & Legal Escalation)
 - **Agentic MCP Tools Protocol**: Exposes Model Context Protocol tool definitions at `/api/mcp/tools`.
+
+---
+
+## ⚡ Build Challenges & Technical Obstacles
+
+### 1. Multi-Tier Microservice Isolation & Bridging
+- **Obstacle**: Separating the frontend (React Vite), agent orchestration server (Node Express), and enterprise security core (Java 17 Spring Boot) while maintaining zero-friction developer execution.
+- **Solution**: Designed modular directory isolation (`/client`, `/server`, `/security-service`) with automated HTTP REST bridging (`javaSecurityService.js` & `blockchainService.js`) and environment-aware client URL fallbacks.
+
+### 2. Cross-Origin CORS & Browser Preflight Bottlenecks
+- **Obstacle**: Cross-origin requests between ports `3000`, `5000`, and `8080` triggered mandatory browser CORS `OPTIONS` preflight bottlenecks when custom headers like `Content-Type` were passed on simple `GET` calls.
+- **Solution**: Refactored the API client (`client.js`) to attach `Content-Type` strictly on payload-bearing requests (`POST`/`PUT`) and implemented explicit `OPTIONS` preflight handlers returning HTTP 200 OK across Express and Spring Boot controllers.
+
+### 3. Real-Time Cryptographic Blockchain Mining Without Event Loop Lag
+- **Obstacle**: Mining SHA-256 Proof-of-Work blocks inside synchronous Node.js event loops threatened to block API throughput.
+- **Solution**: Offloaded block hashing and Proof-of-Work nonce calculation to the **Java 17 Spring Boot Microservice**, leveraging multi-threaded JVM execution and asynchronous REST bridging in Express.
 
 ---
 
