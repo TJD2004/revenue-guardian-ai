@@ -50,6 +50,12 @@ export const api = {
     const query = new URLSearchParams(params).toString();
     return fetchJson(`/audit${query ? `?${query}` : ''}`);
   },
+  getBlockchainChain: () => fetchJson('/blockchain/chain'),
+  verifyBlockchain: () => fetchJson('/blockchain/verify'),
+  mineBlockchainBlock: (data) => fetchJson('/blockchain/mine', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
   runBatchSimulation: (batchSize = 15) => fetchJson('/simulations/run', {
     method: 'POST',
     body: JSON.stringify({ batchSize })

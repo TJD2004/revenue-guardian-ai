@@ -13,7 +13,8 @@ import {
   Zap,
   Layers,
   DollarSign,
-  Terminal
+  Terminal,
+  Link2
 } from 'lucide-react';
 
 export function Sidebar({ currentPath, navigate }) {
@@ -23,6 +24,7 @@ export function Sidebar({ currentPath, navigate }) {
     { label: 'Recovery Opportunities', path: '/recovery', icon: TrendingUp },
     { label: 'Specialized Engines', path: '/engines', icon: Layers, highlight: true },
     { label: 'AI Agent Panel', path: '/agent', icon: Bot, highlight: true },
+    { label: 'Blockchain Ledger', path: '/blockchain', icon: Link2, highlight: true },
     { label: 'Audit Trail', path: '/audit', icon: FileText },
     { label: 'Voice Recovery', path: '/voice', icon: Mic },
     { label: 'ROI & Attribution', path: '/attribution', icon: DollarSign },

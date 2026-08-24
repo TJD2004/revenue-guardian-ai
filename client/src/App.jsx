@@ -17,6 +17,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { EnginesPage } from './pages/EnginesPage';
 import { AttributionPage } from './pages/AttributionPage';
 import { McpPage } from './pages/McpPage';
+import { BlockchainPage } from './pages/BlockchainPage';
 
 import { api } from './api/client';
 
@@ -70,6 +71,9 @@ export default function App() {
     }
     if (currentPath === '/mcp') {
       return <McpPage navigate={navigate} />;
+    }
+    if (currentPath === '/blockchain') {
+      return <BlockchainPage navigate={navigate} />;
     }
     if (currentPath === '/customers') {
       return <CustomersPage navigate={navigate} />;

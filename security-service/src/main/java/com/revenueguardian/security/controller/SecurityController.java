@@ -1,5 +1,7 @@
 package com.revenueguardian.security.controller;
 
+import com.revenueguardian.security.model.Block;
+import com.revenueguardian.security.service.BlockchainService;
 import com.revenueguardian.security.service.CryptoService;
 import com.revenueguardian.security.service.RbiPolicyService;
 import org.springframework.http.ResponseEntity;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -16,10 +19,12 @@ public class SecurityController {
 
     private final CryptoService cryptoService;
     private final RbiPolicyService rbiPolicyService;
+    private final BlockchainService blockchainService;
 
-    public SecurityController(CryptoService cryptoService, RbiPolicyService rbiPolicyService) {
+    public SecurityController(CryptoService cryptoService, RbiPolicyService rbiPolicyService, BlockchainService blockchainService) {
         this.cryptoService = cryptoService;
         this.rbiPolicyService = rbiPolicyService;
+        this.blockchainService = blockchainService;
     }
 
     @GetMapping("/health")
@@ -29,6 +34,8 @@ public class SecurityController {
         health.put("framework", "Spring Boot 3.2.3 (Java 17)");
         health.put("service", "RevenueGuardian AI — Enterprise Security Microservice");
         health.put("cryptographyEngine", "javax.crypto HmacSHA256 & MessageDigest SHA-256");
+        health.put("blockchainStatus", "Active Cryptographic Proof-of-Work Chain");
+        health.put("blockchainHeight", blockchainService.getChain().size());
         health.put("rbiPolicyCompliance", "RBI 2026 E-Mandate Compliant");
         health.put("timestamp", Instant.now().toString());
         return ResponseEntity.ok(health);
@@ -78,5 +85,44 @@ public class SecurityController {
         response.put("timestamp", Instant.now().toString());
 
         return ResponseEntity.ok(response);
+    }
+
+    // BLOCKCHAIN ENDPOINTS
+
+    @GetMapping("/blockchain/chain")
+    public ResponseEntity<Map<String, Object>> getBlockchainChain() {
+        List<Block> chain = blockchainService.getChain();
+        boolean isChainValid = blockchainService.validateChain();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("chain", chain);
+        response.put("height", chain.size());
+        response.put("isValid", isChainValid);
+        response.put("algorithm", "SHA-256 Proof-of-Work");
+        response.put("timestamp", Instant.now().toString());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/blockchain/verify")
+    public ResponseEntity<Map<String, Object>> verifyBlockchainIntegrity() {
+        boolean isValid = blockchainService.validateChain();
+        List<Block> chain = blockchainService.getChain();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("isValid", isValid);
+        response.put("blockCount", chain.size());
+        response.put("genesisHash", chain.get(0).getHash());
+        response.put("latestHash", chain.get(chain.size() - 1).getHash());
+        response.put("verificationStatus", isValid ? "PASSED — All block cryptographic pointers valid." : "FAILED — Tamper detected!");
+        response.put("timestamp", Instant.now().toString());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/blockchain/mine")
+    public ResponseEntity<Block> mineBlock(@RequestBody Map<String, Object> data) {
+        Block newBlock = blockchainService.mineBlock(data);
+        return ResponseEntity.ok(newBlock);
     }
 }
