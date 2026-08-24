@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Sparkles, Play, RotateCcw, Cpu, CheckCircle2, Zap, Upload, Building2 } from 'lucide-react';
+import { Shield, Sparkles, Play, RotateCcw, Cpu, CheckCircle2, Zap, Upload, Building2, Lock } from 'lucide-react';
 import { api } from '../api/client';
 import { ImportEventsModal } from './ImportEventsModal';
 import confetti from 'canvas-confetti';
@@ -63,7 +63,12 @@ export function Navbar({ onRunSimulation, onResetSimulation, currentPath, naviga
 
           <div className="hidden lg:flex items-center space-x-3">
             <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-bold">
-              <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+              <Lock className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Spring Boot 3 Security Active</span>
+            </div>
+
+            <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-800 font-bold">
+              <Building2 className="w-3.5 h-3.5 text-blue-600" />
               <span>RBI 2026 E-Mandate Compliant</span>
             </div>
 

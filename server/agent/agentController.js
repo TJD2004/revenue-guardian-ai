@@ -44,11 +44,13 @@ class AgentController {
       });
     };
 
+    const eventAmount = Number(event.amount || 0);
+
     addTraceStep(
       'Event Received & Customer History Retrieved',
-      `Inspected event #${event.id} (Amount: ₹${event.amount.toLocaleString('en-IN')}, Failure: ${event.failureReason}). Customer ${customer.name} has ${customer.successfulPaymentsCount || 4} successful past transactions.`,
+      `Inspected event #${event.id} (Amount: ₹${eventAmount.toLocaleString('en-IN')}, Failure: ${event.failureReason || 'N/A'}). Customer ${customer.name} has ${customer.successfulPaymentsCount || 4} successful past transactions.`,
       'info',
-      { amount: event.amount, failureReason: event.failureReason, customerVIP: customer.isVIP }
+      { amount: eventAmount, failureReason: event.failureReason, customerVIP: customer.isVIP }
     );
 
     const riskAnalysis = analyzeEventRisk(event, customer);
@@ -58,9 +60,11 @@ class AgentController {
     event.priority = riskAnalysis.priority;
     event.failureClassification = riskAnalysis.failureClassification;
 
+    const expectedRecVal = Number(riskAnalysis.expectedRecoveryValue || 0);
+
     addTraceStep(
       'Risk & Recovery Intelligence Calculated',
-      `Diagnosed Classification: ${riskAnalysis.failureClassification.toUpperCase()}. Risk Score: ${riskAnalysis.riskScore}/100 | Recovery Prob: ${riskAnalysis.recoveryProbabilityPercent}% | Expected Recovery: ₹${riskAnalysis.expectedRecoveryValue.toLocaleString('en-IN')}`,
+      `Diagnosed Classification: ${(riskAnalysis.failureClassification || 'GENERAL').toUpperCase()}. Risk Score: ${riskAnalysis.riskScore}/100 | Recovery Prob: ${riskAnalysis.recoveryProbabilityPercent}% | Expected Recovery: ₹${expectedRecVal.toLocaleString('en-IN')}`,
       'info',
       riskAnalysis
     );
@@ -81,9 +85,9 @@ class AgentController {
     for (const toolName of plan.toolSequence) {
       let toolArgs = {};
       if (toolName === 'generate_payment_link') {
-        toolArgs = { eventId: event.id, discountPercent: plan.outreachConfig.discountPercent || 0 };
+        toolArgs = { eventId: event.id, discountPercent: plan.outreachConfig?.discountPercent || 0 };
       } else if (toolName === 'schedule_payment_retry') {
-        toolArgs = { eventId: event.id, delayDays: plan.outreachConfig.delayDays || 1 };
+        toolArgs = { eventId: event.id, delayDays: plan.outreachConfig?.delayDays || 1 };
       } else if (toolName === 'create_followup') {
         toolArgs = { eventId: event.id, promiseDate: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0] };
       } else if (toolName === 'close_case') {
@@ -117,13 +121,13 @@ class AgentController {
     if (event.status !== 'Recovered' && !event.isClosed) {
       const rand = Math.random();
       if (rand <= (riskAnalysis.recoveryProbability || 0.75)) {
-        const recResult = executeRecoveryTool('mark_payment_recovered', { eventId: event.id, recoveredAmount: event.amount }, event, customer, options);
-        totalRecovered += recResult.recoveredAmount;
+        const recResult = executeRecoveryTool('mark_payment_recovered', { eventId: event.id, recoveredAmount: eventAmount }, event, customer, options);
+        totalRecovered += recResult.recoveredAmount || 0;
         addTraceStep(
           'Outcome Verification: Revenue Recovered! 🎉',
-          `Payment recovered successfully! ₹${event.amount.toLocaleString('en-IN')} added to recovered metrics.`,
+          `Payment recovered successfully! ₹${eventAmount.toLocaleString('en-IN')} added to recovered metrics.`,
           'success',
-          { status: 'Recovered', amount: event.amount }
+          { status: 'Recovered', amount: eventAmount }
         );
       } else {
         addTraceStep(
@@ -161,10 +165,10 @@ class AgentController {
       const res = await this.processRevenueEvent(event, { ...options, forceRuleEngine: true });
       if (res.recovered) {
         recoveredCount++;
-        newlyRecoveredAmount += res.recoveredAmount;
-        seedService.markEventRecovered(event.id, res.recoveredAmount);
+        newlyRecoveredAmount += res.recoveredAmount || 0;
+        seedService.markEventRecovered(event.id, res.recoveredAmount || 0);
       }
-      if (res.trace.steps.some(s => s.status === 'blocked')) {
+      if (res.trace?.steps?.some(s => s.status === 'blocked')) {
         blockedCount++;
       }
     }

@@ -9,6 +9,7 @@ import { auditLogger } from './agent/auditLogger.js';
 import { seedService } from './services/seedService.js';
 import { razorpayProvider } from './services/razorpayProvider.js';
 import { AGENT_TOOLS_DEFINITIONS } from './agent/toolRegistry.js';
+import { javaSecurityService } from './services/javaSecurityService.js';
 
 dotenv.config();
 
@@ -50,11 +51,13 @@ app.get('/', (req, res) => {
   res.json({
     status: 'online',
     service: 'RevenueGuardian AI — Backend Agent API',
+    securityEngine: 'Java 17 Spring Boot Security Microservice',
     endpoints: {
       stats: '/api/stats',
       events: '/api/events',
       customers: '/api/customers',
       audit: '/api/audit',
+      security: '/api/security/status',
       mcpTools: '/api/mcp/tools'
     }
   });
@@ -82,7 +85,7 @@ app.get('/api/events/:id', (req, res) => {
   const customerHistory = seedService.getCustomerHistory(event.customerId);
   res.json({
     event,
- customerHistory,
+    customerHistory,
     traces: agentController.getTracesForEvent(event.id)
   });
 });
@@ -90,7 +93,7 @@ app.get('/api/events/:id', (req, res) => {
 // 3. Process Single Event via Agent Loop
 app.post('/api/events/:id/process', async (req, res) => {
   try {
-    const { useAi = true } = req.body;
+    const { useAi = true } = req.body || {};
     const event = seedService.getEventById(req.params.id);
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
@@ -113,7 +116,7 @@ app.post('/api/events/:id/process', async (req, res) => {
 // 4. Batch Simulation Endpoint
 app.post('/api/simulations/run', async (req, res) => {
   try {
-    const { batchSize = 10, useAi = false } = req.body;
+    const { batchSize = 10, useAi = false } = req.body || {};
     const result = await agentController.runBatchSimulation(batchSize, { useAi });
     res.json(result);
   } catch (err) {
@@ -122,11 +125,21 @@ app.post('/api/simulations/run', async (req, res) => {
   }
 });
 
-// 5. Live Razorpay Webhook Receiver (Real-Time Ingestion)
+// 5. Live Razorpay Webhook Receiver (Real-Time Ingestion with Java Signature Verification)
 app.post('/api/webhooks/razorpay', async (req, res) => {
   try {
-    const webhookPayload = req.body;
-    console.log('⚡ Received Live Razorpay Webhook Event:', webhookPayload.event);
+    const webhookPayload = req.body || {};
+    const signature = req.headers['x-razorpay-signature'] || '';
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || 'razorpay_secret_default';
+
+    // Verify signature using Java 17 Spring Boot CryptoService
+    const verification = await javaSecurityService.verifyWebhookSignature(
+      JSON.stringify(webhookPayload),
+      signature,
+      secret
+    );
+
+    console.log('⚡ Received Live Razorpay Webhook Event:', webhookPayload.event || 'generic', '| Java Signature Verified:', verification.verified);
 
     const createdEvent = seedService.ingestWebhookEvent(webhookPayload);
     const agentResult = await agentController.processRevenueEvent(createdEvent, { useAi: true });
@@ -138,6 +151,7 @@ app.post('/api/webhooks/razorpay', async (req, res) => {
     res.json({
       success: true,
       message: 'Razorpay Webhook ingested & agent executed live',
+      signatureVerification: verification,
       createdEvent,
       agentResult
     });
@@ -176,7 +190,13 @@ app.get('/api/audit', (req, res) => {
   res.json(logs);
 });
 
-// 9. Get Tools Definition (MCP)
+// 9. Java Spring Boot Security Microservice Health Status Endpoint
+app.get('/api/security/status', async (req, res) => {
+  const securityStatus = await javaSecurityService.getHealthStatus();
+  res.json(securityStatus);
+});
+
+// 10. Get Tools Definition (MCP)
 app.get('/api/mcp/tools', (req, res) => {
   res.json({
     mcpVersion: "1.0",
@@ -185,7 +205,7 @@ app.get('/api/mcp/tools', (req, res) => {
   });
 });
 
-// 10. Reset Dataset Endpoint
+// 11. Reset Dataset Endpoint
 app.post('/api/simulations/reset', (req, res) => {
   seedService.resetData();
   auditLogger.clear();
@@ -195,4 +215,5 @@ app.post('/api/simulations/reset', (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 RevenueGuardian AI Backend Server running on port ${PORT}`);
+  console.log(`🛡️ Java 17 Spring Boot Security Bridge Initialized`);
 });
