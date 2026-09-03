@@ -80,7 +80,8 @@ export class SeedService {
       else amount = Math.floor(1200 + Math.random() * 25000);
 
       const daysOverdue = Math.floor(Math.random() * 25) + 1;
-      const isInitiallyRecovered = i <= 65;
+      // 384 out of 500 initially recovered = 76.8% Recovery Rate
+      const isInitiallyRecovered = i <= 384;
 
       events.push({
         id: `REV-${202600 + i}`,
@@ -206,7 +207,7 @@ export class SeedService {
 
     const totalCases = store.events.length;
     const recoveredCases = store.events.filter(e => e.status === 'Recovered').length;
-    const recoveryRate = totalCases > 0 ? Math.round((recoveredCases / totalCases) * 1000) / 10 : 61.7;
+    const recoveryRate = totalCases > 0 ? Math.round((recoveredCases / totalCases) * 1000) / 10 : 76.8;
 
     return {
       totalAtRisk,

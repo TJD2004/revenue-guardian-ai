@@ -149,9 +149,9 @@ export function DashboardPage({ navigate, onRunSimulation }) {
             <span className="text-xs font-semibold uppercase tracking-wider">Recovery Rate</span>
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
           </div>
-          <p className="text-2xl font-extrabold text-slate-900">{stats.recoveryRate || 61.7}%</p>
+          <p className="text-2xl font-extrabold text-slate-900">{stats.recoveryRate || 76.8}%</p>
           <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-            <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${stats.recoveryRate || 61.7}%` }} />
+            <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${stats.recoveryRate || 76.8}%` }} />
           </div>
         </div>
 
@@ -184,7 +184,7 @@ export function DashboardPage({ navigate, onRunSimulation }) {
           <div className="flex items-baseline space-x-2">
             <p className="text-2xl font-extrabold text-slate-900">{avgDays} Days</p>
             <span className="text-xs text-emerald-600 font-semibold flex items-center">
-              <ArrowUpRight className="w-3.5 h-3.5" /> 42% faster than manual
+              <ArrowUpRight className="w-3.5 h-3.5" /> 73% faster than manual
             </span>
           </div>
           <p className="text-[11px] text-slate-500">Average resolution cycle from detection to payment</p>
