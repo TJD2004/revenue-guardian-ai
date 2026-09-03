@@ -1,14 +1,18 @@
 /**
  * Node.js Express Client Bridge for Java 17 Spring Boot Security Microservice
- * Communicates with http://localhost:8080/api/security
- * Includes JS fallback if Spring Boot service is starting up.
+ * Reads JAVA_SECURITY_URL from environment variables in production (Render/Railway),
+ * or defaults to http://localhost:8080/api/security in local dev.
  */
 
-const JAVA_SPRING_BOOT_BASE = 'http://localhost:8080/api/security';
+function getJavaSecurityBaseUrl() {
+  let url = process.env.JAVA_SECURITY_URL || 'http://localhost:8080/api/security';
+  return url.replace(/\/$/, '');
+}
 
 async function fetchSpringBootJson(endpoint, options = {}) {
+  const baseUrl = getJavaSecurityBaseUrl();
   try {
-    const res = await fetch(`${JAVA_SPRING_BOOT_BASE}${endpoint}`, {
+    const res = await fetch(`${baseUrl}${endpoint}`, {
       headers: { 'Content-Type': 'application/json' },
       ...options
     });

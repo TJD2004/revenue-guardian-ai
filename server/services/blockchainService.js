@@ -1,13 +1,19 @@
 /**
  * Express Client Bridge for Java 17 Spring Boot Cryptographic Blockchain Microservice
- * Communicates with http://localhost:8080/api/security/blockchain/*
+ * Reads JAVA_SECURITY_URL from environment variables in production (Render/Railway),
+ * or defaults to http://localhost:8080/api/security/blockchain in local dev.
  */
 
-const JAVA_SPRING_BOOT_BASE = 'http://localhost:8080/api/security/blockchain';
+function getBlockchainBaseUrl() {
+  let url = process.env.JAVA_SECURITY_URL || 'http://localhost:8080/api/security';
+  url = url.replace(/\/$/, '');
+  return url.endsWith('/blockchain') ? url : `${url}/blockchain`;
+}
 
 async function fetchBlockchainJson(endpoint, options = {}) {
+  const baseUrl = getBlockchainBaseUrl();
   try {
-    const res = await fetch(`${JAVA_SPRING_BOOT_BASE}${endpoint}`, {
+    const res = await fetch(`${baseUrl}${endpoint}`, {
       headers: { 'Content-Type': 'application/json' },
       ...options
     });
