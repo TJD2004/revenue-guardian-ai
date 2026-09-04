@@ -1,7 +1,7 @@
 /**
  * Seed Service for RevenueGuardian AI
- * Clean Initial State Mode: Starts with 0 recovered cases (₹78.3L At Risk, ₹0 Recovered, 0.0% Rate).
- * When "Run Autonomous Simulation" is clicked, AI agent processes cases and jumps to 76.8% Recovery Rate!
+ * Clean Zero Start Mode: All 500 benchmark cases start OPEN (0.0% Recovery Rate, ₹0 Recovered).
+ * When "Run Autonomous Simulation" is clicked, the AI Agent processes cases live and recovers revenue!
  */
 
 const FIRST_NAMES = [
@@ -82,8 +82,10 @@ export class SeedService {
       else amount = Math.floor(1200 + Math.random() * 25000);
 
       const daysOverdue = Math.floor(Math.random() * 25) + 1;
+      
+      // Clean Zero Start: All cases start OPEN
+      const isInitiallyRecovered = false;
 
-      // Clean Start Mode: All cases start as Open (0 recovered initially)
       events.push({
         id: `REV-${202600 + i}`,
         customerId: cust.id,
@@ -94,7 +96,7 @@ export class SeedService {
         type,
         failureReason,
         daysOverdue,
-        status: 'Open',
+        status: isInitiallyRecovered ? 'Recovered' : 'Open',
         riskScore: Math.floor(25 + Math.random() * 65),
         recoveryProbability: Math.round((0.55 + Math.random() * 0.4) * 100) / 100,
         expectedRecoveryValue: Math.round(amount * (0.55 + Math.random() * 0.4)),

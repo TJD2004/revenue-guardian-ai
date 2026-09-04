@@ -123,7 +123,7 @@ export function LandingPage({ navigate, onRunSimulation }) {
           <div className="bg-slate-900/80 backdrop-blur border border-slate-700/80 p-4 rounded-2xl space-y-1">
             <p className="text-xs font-semibold text-slate-400">Total Revenue At Risk</p>
             <p className="text-2xl font-black text-white">₹{(stats?.totalAtRisk || 7830098).toLocaleString('en-IN')}</p>
-            <p className="text-[11px] text-slate-400 font-medium">{stats?.totalCases || 500} Benchmark Cases Open</p>
+            <p className="text-[11px] text-slate-400 font-medium">{stats?.totalCases || 500} Benchmark Cases Analyzed</p>
           </div>
 
           <div className="bg-slate-900/80 backdrop-blur border border-emerald-900/80 p-4 rounded-2xl space-y-1">
@@ -134,7 +134,7 @@ export function LandingPage({ navigate, onRunSimulation }) {
 
           <div className="bg-slate-900/80 backdrop-blur border border-indigo-900/80 p-4 rounded-2xl space-y-1">
             <p className="text-xs font-semibold text-indigo-300">Autonomous Recovery Yield</p>
-            <p className="text-2xl font-black text-indigo-300">{stats?.recoveryRate || 0.0}%</p>
+            <p className="text-2xl font-black text-indigo-300">{stats?.recoveryRate ?? 0.0}%</p>
             <p className="text-[11px] text-indigo-300/80 font-medium">3.8x Industry Benchmark</p>
           </div>
 
