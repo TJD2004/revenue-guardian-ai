@@ -1,5 +1,7 @@
 /**
  * Seed Service for RevenueGuardian AI
+ * Clean Initial State Mode: Starts with 0 recovered cases (₹78.3L At Risk, ₹0 Recovered, 0.0% Rate).
+ * When "Run Autonomous Simulation" is clicked, AI agent processes cases and jumps to 76.8% Recovery Rate!
  */
 
 const FIRST_NAMES = [
@@ -80,9 +82,8 @@ export class SeedService {
       else amount = Math.floor(1200 + Math.random() * 25000);
 
       const daysOverdue = Math.floor(Math.random() * 25) + 1;
-      // 384 out of 500 initially recovered = 76.8% Recovery Rate
-      const isInitiallyRecovered = i <= 384;
 
+      // Clean Start Mode: All cases start as Open (0 recovered initially)
       events.push({
         id: `REV-${202600 + i}`,
         customerId: cust.id,
@@ -93,16 +94,16 @@ export class SeedService {
         type,
         failureReason,
         daysOverdue,
-        status: isInitiallyRecovered ? 'Recovered' : 'Open',
+        status: 'Open',
         riskScore: Math.floor(25 + Math.random() * 65),
         recoveryProbability: Math.round((0.55 + Math.random() * 0.4) * 100) / 100,
         expectedRecoveryValue: Math.round(amount * (0.55 + Math.random() * 0.4)),
         priority: amount > 25000 ? 'High' : amount > 8000 ? 'Medium' : 'Low',
-        retryCount: isInitiallyRecovered ? 1 : 0,
-        reminderCount: isInitiallyRecovered ? 1 : 0,
+        retryCount: 0,
+        reminderCount: 0,
         escalationCount: 0,
-        recoveredAmount: isInitiallyRecovered ? amount : 0,
-        recoveredAt: isInitiallyRecovered ? new Date(Date.now() - Math.random() * 86400000 * 5).toISOString() : null,
+        recoveredAmount: 0,
+        recoveredAt: null,
         createdAt: new Date(Date.now() - daysOverdue * 86400000).toISOString()
       });
     }
@@ -207,7 +208,7 @@ export class SeedService {
 
     const totalCases = store.events.length;
     const recoveredCases = store.events.filter(e => e.status === 'Recovered').length;
-    const recoveryRate = totalCases > 0 ? Math.round((recoveredCases / totalCases) * 1000) / 10 : 76.8;
+    const recoveryRate = totalCases > 0 ? Math.round((recoveredCases / totalCases) * 1000) / 10 : 0.0;
 
     return {
       totalAtRisk,
@@ -217,7 +218,7 @@ export class SeedService {
       totalCases,
       openCases: totalCases - recoveredCases,
       recoveredCases,
-      attemptsCount: recoveredCases + 18,
+      attemptsCount: recoveredCases > 0 ? recoveredCases + 18 : 0,
       avgRecoveryDays: 3.8
     };
   }
